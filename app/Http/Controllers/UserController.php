@@ -12,15 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-    public function job()
-    {
-        $manager = new QueueManager();
-
-        $manager->listen('log data', function($data) {
-            Log::info($data);
-        });
-    }
-
     public function queue(Request $request, $event)
     {
         $manager = new QueueManager();

@@ -16,10 +16,6 @@ use Illuminate\Support\Facades\Log;
 |
 */
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
-
 Artisan::command('coolworker', function () {
     $this->comment('CoolWorker 3000 started, waiting for events...');
     $manager = new QueueManager();
