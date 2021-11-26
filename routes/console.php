@@ -1,7 +1,6 @@
 <?php
 
 use App\QueueManager;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
@@ -18,9 +17,8 @@ use Illuminate\Support\Facades\Log;
 
 Artisan::command('coolworker', function () {
     $this->comment('CoolWorker 3000 started, waiting for events...');
-    $manager = new QueueManager();
 
-    $manager->listen('log data', function($data) {
+    QueueManager::listen('log data', function($data) {
         Log::info($data);
         $this->comment('Log event executed. Outputting ' . $data . ' to console.');
     });

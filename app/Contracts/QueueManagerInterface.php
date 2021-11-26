@@ -5,22 +5,21 @@ namespace App\Contracts;
 interface QueueManagerInterface
 {
     /**
+     * @return mixed
+     */
+    public static function init();
+
+    /**
      * @param string $queue
      * @param string $data
      * @return mixed
      */
-    public function push(string $queue, string $data);
-
-    /**
-     * @param string $queue
-     * @return mixed
-     */
-    public function pop(string $queue);
+    public static function push(string $queue, string $data);
 
     /**
      * @param string $queue
      * @param $closure
      * @return mixed
      */
-    public function listen(string $queue, $closure);
+    public static function listen(string $queue, $closure);
 }

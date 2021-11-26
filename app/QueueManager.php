@@ -9,52 +9,56 @@ use Redis;
 
 class QueueManager implements QueueManagerInterface
 {
-    public $adapter;
-
-    public function __construct()
+    public static function init()
     {
         switch (config('adapter.default')) {
             case 'redis':
-                $this->adapter = new Redis();
-                $this->adapter->connect(config('adapter.redis.host'), config('adapter.redis.port'));
-                $this->adapter->auth(config('adapter.redis.password'));
-                break;
+                $adapter = new Redis();
+                $adapter->connect(config('adapter.adapters.redis.host'), config('adapter.adapters.redis.port'));
+                $adapter->auth(config('adapter.adapters.redis.password'));
+                return $adapter;
             case 'rabbitmq':
                 $connection = new AMQPStreamConnection(
-                    config('adapter.rabbitmq.host'),
-                    config('adapter.rabbitmq.port'),
-                    config('adapter.rabbitmq.user'),
-                    config('adapter.rabbitmq.password'),
+                    config('adapter.adapters.rabbitmq.host'),
+                    config('adapter.adapters.rabbitmq.port'),
+                    config('adapter.adapters.rabbitmq.user'),
+                    config('adapter.adapters.rabbitmq.password'),
                 );
-                $this->adapter = $connection->channel();
+                return $connection->channel();
+        }
+        return null;
+    }
+
+    public static function push(string $queue, string $data)
+    {
+        if (! $adapter = self::init()) {
+            return null;
+        }
+        switch (config('adapter.default')) {
+            case 'redis':
+                $adapter->rpush($queue, $data);
+                break;
+            case 'rabbitmq':
+                $adapter->basic_publish(new AMQPMessage($data), '', $queue);
                 break;
         }
     }
 
-    public function push(string $queue, string $data): void
+    public static function listen(string $queue, $closure)
     {
-        $this->adapter->rpush($queue, $data);
-
-        $this->adapter->basic_publish(new AMQPMessage($data), '', $queue);
-    }
-
-    public function pop(string $queue)
-    {
-        switch (config('adapter.default')) {
-            case 'redis':
-                return $this->adapter->lpop($queue);
-            case 'rabbitmq':
-                $callback = function ($msg) {
-                    echo ' [x] Received ', $msg->body, "\n";
-                };
-                return $this->adapter->basic_consume($queue, '', false, false, false, false, $callback);
+        if (! $adapter = self::init()) {
+            return null;
         }
-    }
-
-    public function listen(string $queue, $closure): void
-    {
         while (true) {
-            $data = $this->pop($queue);
+            switch (config('adapter.default')) {
+                case 'redis':
+                    $data = $adapter->lpop($queue);
+                    break;
+                case 'rabbitmq':
+                    return $adapter->basic_consume($queue, '', false, false, false, false, $closure);
+                default:
+                    $data = null;
+            }
             if ($data) {
                 $closure($data);
             }
