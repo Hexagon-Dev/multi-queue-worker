@@ -18,16 +18,8 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(QueueWorkerInterface::class, function () {
-            $driver = config('adapter.default');
-
-            switch ($driver) {
-                case 'redis':
-                    return new QueueWorker(new RedisAdapter());
-                case 'rabbitmq':
-                    return new QueueWorker(new RabbitMQAdapter());
-                default:
-                    throw new \Exception('QueueWorker ' . $driver .  ' not found');
-            }
+            $engine = config('adapter.adapters.' . config('adapter.default') . '.className');
+            return new QueueWorker(new $engine);
         });
     }
 

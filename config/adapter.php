@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => 'rabbitmq',
+    'default' => 'redis',
 
     'adapters' => [
         'redis' => [
