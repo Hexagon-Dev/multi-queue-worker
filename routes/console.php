@@ -1,6 +1,9 @@
 <?php
 
-use App\QueueManager;
+use App\Adapters\RedisAdapter;
+use App\Adapters\RabbitMQAdapter;
+use App\Contracts\QueueWorkerInterface;
+use App\QueueWorker;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
@@ -15,11 +18,14 @@ use Illuminate\Support\Facades\Log;
 |
 */
 
-Artisan::command('coolworker', function () {
+Artisan::command('coolworker', function (QueueWorkerInterface $queueWorker) {
     $this->comment('CoolWorker 3000 started, waiting for events...');
 
-    QueueManager::listen('log data', function($data) {
-        Log::info($data);
-        $this->comment('Log event executed. Outputting ' . $data . ' to console.');
+    $queueWorker->listen('log data', function($data) {
+        if (!is_string($data)) {
+            $data = $data->body;
+        }
+            Log::info($data);
+            $this->comment('Log event executed. Outputting ' . $data . ' to console.');
     });
 });

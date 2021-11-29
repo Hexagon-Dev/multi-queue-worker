@@ -1,26 +1,28 @@
 <?php
 
 return [
-    'default' => env('COOL_ADAPTER_TYPE', 'redis'),
+    'default' => 'rabbitmq',
 
     'adapters' => [
         'redis' => [
-            'host' => env('COOL_ADAPTER_HOST', 'redis'),
-            'port' => env('COOL_ADAPTER_PORT', '6379'),
-            'user' => env('COOL_ADAPTER_USER', ''),
-            'password' => env('COOL_ADAPTER_PASSWORD', 'password'),
+            'className' => \App\Adapters\RedisAdapter::class,
+            'host' => 'redis',
+            'port' => '6379',
+            'user' => '',
+            'password' => 'password',
         ],
         'rabbitmq' => [
-            'host' => env('COOL_ADAPTER_HOST', 'localhost'),
-            'port' => env('COOL_ADAPTER_PORT', '5672'),
-            'user' => env('COOL_ADAPTER_USER', 'guest'),
-            'password' => env('COOL_ADAPTER_PASSWORD', 'guest'),
+            'className' => \App\Adapters\RabbitMQAdapter::class,
+            'host' => 'rabbitmq',
+            'port' => '5672',
+            'user' => 'guest',
+            'password' => 'guest',
         ],
         'zhopa' => [
-            'host' => env('COOL_ADAPTER_HOST', 'localhost'),
-            'port' => env('COOL_ADAPTER_PORT', '65536'),
-            'user' => env('COOL_ADAPTER_USER', ''),
-            'password' => env('COOL_ADAPTER_PASSWORD', 'password'),
+            'host' => 'localhost',
+            'port' => '65536',
+            'user' => '',
+            'password' => 'password',
         ],
     ]
 ];

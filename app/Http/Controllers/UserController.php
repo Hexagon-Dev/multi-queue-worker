@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\QueueWorkerInterface;
 use App\Http\Requests\UserCreateRequest;
 use App\Jobs\SaveUserToDatabase;
-use App\QueueManager;
 use Illuminate\Http\Request;
 use Redis;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-    public function queue(Request $request, $event)
+    public function queue(Request $request, QueueWorkerInterface $queueWorker, $event)
     {
-        QueueManager::push($event, $request->input('data'));
+        $queueWorker->push($event, $request->input('data'));
     }
 
     public function create(UserCreateRequest $request)

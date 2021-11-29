@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Adapters\RabbitMQAdapter;
+use App\Adapters\RedisAdapter;
+use App\Contracts\QueueWorkerInterface;
+use App\QueueWorker;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +17,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(QueueWorkerInterface::class, function () {
+            $driver = config('adapter.default');
+
+            switch ($driver) {
+                case 'redis':
+                    return new QueueWorker(new RedisAdapter());
+                case 'rabbitmq':
+                    return new QueueWorker(new RabbitMQAdapter());
+                default:
+                    throw new \Exception('QueueWorker ' . $driver .  ' not found');
+            }
+        });
     }
 
     /**
@@ -23,6 +38,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+
     }
 }
